@@ -22,6 +22,10 @@ import com.ori.rpc.common.SpringUtil;
 import com.ori.rpc.proxy.CglibProxyFactory;
 import com.ori.rpc.registry.ServiceChangeListener;
 import com.ori.rpc.registry.ZookeeperClient;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
@@ -126,12 +130,23 @@ public class ReferenceConfig implements InitializingBean, ApplicationContextAwar
     /**
      * 订阅服务变化
      */
-    private void subscribeServiceChange() {
+    private void subscribeServiceChange() throws Exception {
         RegisterConfig register = (RegisterConfig) SpringUtil.getApplicationContext().getBean("register");
         String path = "/crazyrpc/" + name + "/provider";
         logger.info("订阅服务变化:[" + path + "]");
         // 订阅子目录变化
-        ZookeeperClient.getInstance(register.getIp(), register.getPort()).subscribeChildChange(path, new ServiceChangeListener(name));
+        CuratorFramework client = ZookeeperClient.getZkClient(register.getIp(),register.getPort());
+
+        PathChildrenCache pathChildrenCache = new PathChildrenCache(client, path, false);
+        PathChildrenCacheListener pathChildrenCacheListener = new PathChildrenCacheListener() {
+            @Override
+            public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+                logger.info("监听到服务变化，refrenceName=" + name);
+                ReferenceUtil.get(name).getReferences();
+            }
+        };
+        pathChildrenCache.getListenable().addListener(pathChildrenCacheListener);
+        pathChildrenCache.start();
     }
 
     /**

@@ -42,7 +42,7 @@ public class ZookeeperClient {
      */
     private static ZookeeperClient instance;
 
-    private CuratorFramework zkClient;
+    private static CuratorFramework zkClient;
 
     /**
      * 私有化构造
@@ -71,6 +71,12 @@ public class ZookeeperClient {
         return instance;
     }
 
+    public static CuratorFramework getZkClient(String ip, String port) {
+        if (null == instance) {
+            instance = new ZookeeperClient(ip, port);
+        }
+        return zkClient;
+    }
 
     /**
      * 判断路径是否存在

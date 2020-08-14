@@ -50,8 +50,11 @@ public class SimpleBeanDefinitionParser extends AbstractSimpleBeanDefinitionPars
         for (int x = 0; x < attributes.getLength(); x++) {
             Attr attribute = (Attr) attributes.item(x);
             if (isEligibleAttribute(attribute, parserContext)) {
+                // property name
                 String propertyName = extractPropertyName(attribute.getLocalName());
+                // 是否为 null/空
                 Assert.state(StringUtils.hasText(propertyName), "Illegal property name returned from 'extractPropertyName(String)': cannot be null or empty.");
+                // 属性赋值
                 builder.addPropertyValue(underLineToCamel(propertyName), attribute.getValue());
             }
         }
