@@ -60,6 +60,17 @@ public class ProtostuffSerialization {
         return schema;
     }
 
+    /**
+     * 序列化的逻辑主要分以下步骤：
+     *
+     * 获得需要序列化的对象的类，在本示例中也就是Request类或者Response类。
+     * 使用LinkedBuffer分配一块默认大小的buffer空间。
+     * 通过对象的类构建对应的schema。
+     * 将对象序列化为一个byte数组，并返回。
+     * @param obj
+     * @param <T>
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static <T> byte[] serialize(T obj) {
         // 获得对象的类
@@ -78,6 +89,17 @@ public class ProtostuffSerialization {
         }
     }
 
+    /**
+     * 反序列化逻辑如下：
+     *
+     * 实例化一个类的对象，在本示例中也就是Request类或者Response类的对象。
+     * 通过对象的类构建对应的schema。
+     * 使用给定的schema将byte数组和对象合并。
+     * @param data
+     * @param cls
+     * @param <T>
+     * @return
+     */
     public static <T> T deserialize(byte[] data, Class<T> cls) {
         try {
             // 实例化一个类的对象
